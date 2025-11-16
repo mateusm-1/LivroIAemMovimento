@@ -158,51 +158,98 @@ linenos: true
 emphasize-lines: 3
 caption: Exemplo prático, em Python, de webhook com Flask conectado ao WhatsApp usando Twilio
 ---
+# Importe a biblioteca 'os' para acessar variáveis de ambiente
+import os
 from flask import Flask, request, jsonify
 import requests
-import openai
 
-# Configurações
-openai.api_key = "SUA_CHAVE_OPENAI"
-ZAPI_TOKEN = "seu_token_zapi"
-ZAPI_URL = "https://api.z-api.io/instances/SUA_INSTANCIA/token/SUA_TOKEN/send-messages"
+from openai import OpenAI
+
+# --- 1. CONFIGURAÇÕES COM VARIÁVEIS DE AMBIENTE (MAIS SEGURO) ---
+# Carregue as chaves a partir das variáveis de ambiente do seu sistema
+# Para testar localmente, você pode criar um arquivo .env ou definir as variáveis no seu terminal
+
+# Instancie o cliente da OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+ZAPI_INSTANCE = os.getenv("ZAPI_INSTANCE")
+ZAPI_TOKEN = os.getenv("ZAPI_TOKEN")
+
+# A URL é construída dinamicamente com as variáveis de ambiente
+ZAPI_URL = f"https://api.z-api.io/instances/{ZAPI_INSTANCE}/token/{ZAPI_TOKEN}/send-text"
 
 app = Flask(__name__)
 
-def gerar_resposta(pergunta):
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "Você é um atendente simpático e informativo de uma clínica médica."},
-            {"role": "user", "content": pergunta}
-        ]
-    )
-    return response.choices[0].message.content.strip()
+def gerar_resposta(pergunta: str) -> str:
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Você é um atendente simpático e informativo de uma clínica médica."},
+                {"role": "user", "content": pergunta}
+            ]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        # Se ocorrer um erro na chamada da API, ele será registrado no console
+        print(f"Erro ao gerar resposta com OpenAI: {e}")
+        return "Desculpe, estou com um problema para processar sua solicitação no momento. Tente novamente mais tarde."
 
-def enviar_resposta_whatsapp(numero, mensagem):
+def enviar_resposta_whatsapp(numero: str, mensagem: str) -> bool:
+    """
+    Envia uma mensagem de texto via Z-API.
+    """
     payload = {
         "phone": numero,
         "message": mensagem
     }
     headers = {"Content-Type": "application/json"}
-    r = requests.post(ZAPI_URL, json=payload, headers=headers)
-    return r.status_code == 200
+    
+    try:
+        response = requests.post(ZAPI_URL, json=payload, headers=headers)
+        # Verifica se a requisição foi bem-sucedida (código de status 2xx)
+        response.raise_for_status() 
+        print(f"Resposta enviada para {numero} com sucesso.")
+        return True
+    except requests.exceptions.RequestException as e:
+        # Se ocorrer um erro na chamada da API, ele será registrado no console
+        print(f"Erro ao enviar mensagem via Z-API: {e}")
+        return False
 
 @app.route("/webhook", methods=["POST"])
 def receber_mensagem():
-    data = request.get_json()
-    numero = data.get("phone")  # WhatsApp number
-    mensagem = data.get("message")  # Mensagem enviada pelo paciente
+    """
+    Webhook para receber mensagens do WhatsApp via Z-API.
+    """
+    try:
+        data = request.get_json()
+        print("Webhook recebido:", data) # Ótimo para depuração
 
-    if numero and mensagem:
-        resposta = gerar_resposta(mensagem)
-        sucesso = enviar_resposta_whatsapp(numero, resposta)
-        return jsonify({"status": "ok", "resposta": resposta, "enviado": sucesso})
-    return jsonify({"status": "erro", "mensagem": "Dados incompletos"}), 400
+        # Adapte essas chaves conforme a estrutura real do webhook da Z-API
+        numero = data.get("phone")
+        mensagem = data.get("text") # Muitos webhooks usam "text" em vez de "message"
+
+        if not numero or not mensagem:
+            return jsonify({"status": "erro", "mensagem": "Dados incompletos: 'phone' ou 'text' ausentes."}), 400
+
+        resposta_ia = gerar_resposta(mensagem)
+        sucesso_envio = enviar_resposta_whatsapp(numero, resposta_ia)
+        
+        status_final = "enviado" if sucesso_envio else "falha_no_envio"
+        return jsonify({"status": "ok", "resposta_gerada": resposta_ia, "status_envio": status_final})
+
+    except Exception as e:
+        print(f"Erro inesperado no webhook: {e}")
+        return jsonify({"status": "erro", "mensagem": "Ocorreu um erro interno no servidor."}), 500
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    # O modo debug é útil para desenvolvimento, mas deve ser desativado em produção
+    app.run(port=5000, debug=True)
 ```
+### 📁 Repositório do código
+
+👉 [Clique aqui para abrir o arquivo `sistema_de_atendimento_z-api.py` no GitHub](https://github.com/unb-lamfo-negocios-ai/Recursos-do-Livro/blob/main/sistema_de_atendimento_z-api.py)
+
 :::{note}
 Você conecta a API de algum serviço de IA ao seu sistema de atendimento, e ela entra automaticamente no fluxo.
 :::
@@ -216,11 +263,11 @@ A tabela abaixo mostra exemplos práticos de tarefas que você pode automatizar 
 |**Tarefa**| **API que pode ser usada**|
 |----------|---------------------------|
 |Geração de textos|OpenAI (GPT), Anthropic (Claude), Mistral|
-|Geração de imagens|DALL·E, Midjourney (via wrappers), Stability|
-|Classificação de dados|OpenAI embeddings, Google Cloud Vision, Hugging Face|
-|Tradução, resumo, análise de sentimentos|GPT, DeepL, Cohere|
-|Voz e áudio|ElevenLabs, Whisper, Google TTS/STT|
-|Criação de automações|Zapier, Make.com, n8n (integram APIs sem código)|
+|Geração de imagens|DALL·E, Midjourney (via wrappers), [Stability](https://stability.ai/stable-image)|
+|Classificação de dados|OpenAI embeddings, [Google Cloud Vision](https://cloud.google.com/vision?hl=pt-BR), [Hugging Face](https://huggingface.co/)|
+|Tradução, resumo, análise de sentimentos|GPT, [DeepL](https://www.deepl.com/pt-BR/translator), [Cohere](https://cohere.com/blog/command-a-translate)|
+|Voz e áudio|[ElevenLabs](https://elevenlabs.io/), [Whisper](https://openai.com/index/whisper/), [Google TTS/STT](https://cloud.google.com/text-to-speech)|
+|Criação de automações|[Zapier](https://zapier.com/), Make.com, n8n (integram APIs sem código)|
 
 ### Não sei programar. Posso usar API mesmo assim?
 
@@ -231,11 +278,11 @@ Essas ferramentas são ideais para profissionais de qualquer área que desejam a
 ```{admonition} Ferramentas úteis para começar:
 :class: tip
 
-- **Zapier** – conecta aplicativos populares com lógica simples e visual  
+- **[Zapier](https://zapier.com/)** – conecta aplicativos populares com lógica simples e visual  
 - **[Make.com](https://www.make.com)** – alternativa mais avançada, poderosa e com foco em automações visuais complexas  
-- **Pipedream** – permite integrações com um pouco de código, ideal para quem quer flexibilidade sem complexidade  
-- **Retool / Bubble / Softr** – plataformas para criar aplicativos e sistemas com integração via APIs  
-- **Voiceflow / Glide** – voltadas para criação de chatbots e apps com funcionalidades de IA
+- **[Pipedream](https://pipedream.com/)** – permite integrações com um pouco de código, ideal para quem quer flexibilidade sem complexidade  
+- **[Retool](https://retool.com/) / [Bubble](https://bubble.io/) / [Softr](https://www.softr.io/)** – plataformas para criar aplicativos e sistemas com integração via APIs  
+- **[Voiceflow](https://www.voiceflow.com/) / [Glide](https://www.glideapps.com/)** – voltadas para criação de chatbots e apps com funcionalidades de IA
 ```
 
 ```{admonition} Exemplo prático de uso sem código:
