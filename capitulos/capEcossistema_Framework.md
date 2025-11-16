@@ -86,17 +86,21 @@ agent_executor = AgentExecutor.from_agent_and_tools(
 )
 ```
 
+### 📁 Repositório do código
+
+👉 [Clique aqui para abrir o arquivo `exemplo_config_agente.py` no GitHub](https://github.com/unb-lamfo-negocios-ai/Recursos-do-Livro/blob/main/exemplo_config_agente.py)
+
 É importante observar que, embora o LangChain seja um dos frameworks mais populares para orquestração de fluxos com LLMs, ele não está sozinho nesse ecossistema. Outras ferramentas também oferecem recursos avançados para construção de aplicações cognitivas:
 
-- LlamaIndex – Foco na indexação e consulta de dados não estruturados.
+- [LlamaIndex](https://www.llamaindex.ai/) – Foco na indexação e consulta de dados não estruturados.
 
-- Haystack – Robusto para busca semântica e construção de pipelines de NLP.
+- [Haystack](https://haystack.deepset.ai/) – Robusto para busca semântica e construção de pipelines de NLP.
 
-- Semantic Kernel – Framework da Microsoft voltado à composição de agentes e funções de IA com lógica empresarial.
+- [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/) – Framework da Microsoft voltado à composição de agentes e funções de IA com lógica empresarial.
 
-- CrewAI – Especializado em coordenação de múltiplos agentes autônomos que colaboram entre si para atingir objetivos complexos.
+- [CrewAI](https://www.crewai.com/) – Especializado em coordenação de múltiplos agentes autônomos que colaboram entre si para atingir objetivos complexos.
 
-- Autogen (Microsoft) – Facilita a criação de sistemas colaborativos entre múltiplas instâncias de LLMs, com ênfase em automação e diálogo entre agentes.
+- [Autogen (Microsoft)](https://www.microsoft.com/en-us/research/project/autogen/) – Facilita a criação de sistemas colaborativos entre múltiplas instâncias de LLMs, com ênfase em automação e diálogo entre agentes.
 
 Esses frameworks possuem focos distintos, mas compartilham o mesmo propósito: reduzir a complexidade do desenvolvimento de soluções baseadas em LLMs e acelerar a criação de sistemas robustos, modulares e inteligentes.
 
@@ -195,7 +199,7 @@ O LangFlow aborda diretamente a natureza lenta e intensiva em código da prototi
 
 Ao visualizar os workflows, facilita a colaboração e torna ideias de produtos complexas compreensíveis tanto para os stakeholders técnicos como para os não técnicos. Esta clareza visual é um diferenciador chave, permitindo que as equipas construam e demonstrem workflows de LLM rapidamente.
 
-COLOCAR O GIFF DO LANGFLOW FUNCIONANDO AQUI - [exemplo de giff](https://www.linkedin.com/posts/rodrigo-nader-673163bb_langflows-new-advanced-parser-powered-by-ugcPost-7379371424571899905-aCrD?utm_source=share&utm_medium=member_desktop&rcm=ACoAACdqe7IB_zfpFo5iAbyxrFHxEN3NmopwdJc)
+[exemplo de giff](https://www.linkedin.com/posts/rodrigo-nader-673163bb_langflows-new-advanced-parser-powered-by-ugcPost-7379371424571899905-aCrD?utm_source=share&utm_medium=member_desktop&rcm=ACoAACdqe7IB_zfpFo5iAbyxrFHxEN3NmopwdJc)
 
 A plataforma democratiza o acesso a conceitos poderosos de IA, como agentes, RAG e orquestração de múltiplas ferramentas, tornando-os tangíveis e manipuláveis sem a necessidade de um conhecimento profundo em programação. Essencialmente, o LangFlow acelera o ciclo de vida do desenvolvimento de IA ao permitir que as equipas transformem rapidamente ideias em protótipos funcionais, testem diferentes configurações e iterem sobre a lógica da aplicação com um esforço mínimo.
 
