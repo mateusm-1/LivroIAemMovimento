@@ -805,9 +805,9 @@ Suponha que você queira lançar um microserviço para donos de restaurantes que
 :class: note
 
 - Criar o **nome da marca** em segundos.
-- Gerar um **logotipo estilizado** com ferramentas de IA visual.
+- Gerar um **logotipo estilizado** com ferramentas de IA visual [(exemplo de prompt)](https://github.com/unb-lamfo-negocios-ai/Recursos-do-Livro/blob/main/prompt_logotipo.md).
 - Redigir uma **landing page persuasiva**.
-- Automatizar o fluxo com **GPT + Zapier**, sem escrever uma linha de código.
+- Automatizar o fluxo com **GPT + Zapier**, sem escrever uma linha de código (similar ao n8n).
 - Produzir **legendas com GPT-4** e **imagens com DALL·E**.
 ```
 
